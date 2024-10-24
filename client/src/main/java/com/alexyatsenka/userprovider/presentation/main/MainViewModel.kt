@@ -1,16 +1,15 @@
 package com.alexyatsenka.userprovider.presentation.main
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alexyatsenka.models.domain.Note
 import com.alexyatsenka.testcontentprovider.domain.usecase.addNote.AddNewNoteUseCase
-import com.alexyatsenka.testcontentprovider.domain.usecase.deleteNotes.DeleteNotesUseCase
-import com.alexyatsenka.testcontentprovider.domain.usecase.getNotes.GetNotesUseCase
+import com.alexyatsenka.userprovider.domain.usecase.deleteNotes.DeleteNotesUseCase
+import com.alexyatsenka.userprovider.domain.usecase.getNotes.GetNotesUseCase
 import com.alexyatsenka.userprovider.domain.usecase.updateNote.UpdateNoteUseCase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,73 +20,80 @@ class MainViewModel @Inject constructor(
     private val deleteNotesUseCase: DeleteNotesUseCase
 ) : ViewModel() {
 
-    private var mExpand by mutableStateOf(false)
-    private var mShowDelete by mutableStateOf(false)
-    private val mSelectedItems = mutableStateListOf<Note>()
-    private var mEditedItem by mutableStateOf<Note?>(null)
+    private val mExpand = MutableStateFlow(false)
+    private val mShowDelete = MutableStateFlow(false)
+    private val mSelectedItems = MutableStateFlow<List<Note>>(emptyList())
+    private val mEditedItem = MutableStateFlow<Note?>(null)
 
-    var currentTitle by mutableStateOf("")
-    var currentContent by mutableStateOf("")
+    val currentTitle = MutableStateFlow("")
+    val currentContent = MutableStateFlow("")
 
-    val expand get() = mExpand
-    val showDelete get() = mShowDelete
-    val editedItem get() = mEditedItem
+    val expand = mExpand.asStateFlow()
+    val showDelete = mShowDelete.asStateFlow()
+    val editedItem = mEditedItem.asStateFlow()
     val notes = getNotesUseCase().getOrThrow()
-    val selectedItems get() = mSelectedItems.toList()
+    val selectedItems = mSelectedItems.asStateFlow()
 
+    fun setTitle(title : String) {
+        currentTitle.update { title }
+    }
+    fun setContent(content : String) {
+        currentContent.update { content }
+    }
 
     fun addNewNote() {
         viewModelScope.launch {
-            mExpand = false
+            mExpand.update { false }
             addNewNoteUseCase(
                 Note(
-                    title = currentTitle,
-                    content = currentContent
+                    title = currentTitle.value,
+                    content = currentContent.value
                 )
             )
-            currentTitle = ""
-            currentContent = ""
+            currentContent.update { "" }
+            currentTitle.update { "" }
         }
     }
-
     fun deleteNotes() {
-        viewModelScope.launch {
-            mShowDelete = false
-            deleteNotesUseCase(mSelectedItems)
-            mSelectedItems.clear()
-        }
+        mShowDelete.update { false }
+        deleteNotesUseCase(mSelectedItems.value)
+        mSelectedItems.update { emptyList() }
     }
-
-    fun clickToAddCard() { mExpand = !mExpand }
+    fun clickToAddCard() { mExpand.update { !it } }
     fun showDelete() {
-        mShowDelete = !mShowDelete
-        if(!mShowDelete) { mSelectedItems.clear() }
+        mShowDelete.update { !it }
+        if(!mShowDelete.value) { mSelectedItems.update { emptyList() } }
     }
     fun clickToDelete(note : Note) {
-        if(!mSelectedItems.remove(note))
-            mSelectedItems.add(note)
+        mSelectedItems.update {
+            it.toMutableList().also {
+                if(!it.remove(note)) it.add(note)
+            }
+        }
     }
     fun clickToEdit() {
-        mEditedItem = selectedItems.first()
-        currentTitle = editedItem!!.title
-        currentContent = editedItem!!.content
-        mShowDelete = false
+        selectedItems.value.first().also { selectedItem ->
+            mEditedItem.update { selectedItem }
+            currentTitle.update { selectedItem.title }
+            currentContent.update { selectedItem.content }
+            mShowDelete.update { false }
+        }
     }
     fun cancelEdit() {
-        currentTitle = ""
-        currentContent = ""
-        mShowDelete = false
-        mEditedItem = null
+        currentTitle.update { "" }
+        currentContent.update { "" }
+        mShowDelete.update { false }
+        mEditedItem.update { null }
     }
     fun saveEditItem() {
-        viewModelScope.launch {
+        editedItem.value?.let {
             updateNoteUseCase(
-                editedItem!!.copy(
-                    title = currentTitle,
-                    content = currentContent
+                it.copy(
+                    title = currentTitle.value,
+                    content = currentContent.value
                 )
             )
-            cancelEdit()
         }
+        cancelEdit()
     }
 }

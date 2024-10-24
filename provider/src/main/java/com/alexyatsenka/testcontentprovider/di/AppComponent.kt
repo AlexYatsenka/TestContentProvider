@@ -1,7 +1,7 @@
 package com.alexyatsenka.testcontentprovider.di
 
 import android.content.Context
-import com.alexyatsenka.testcontentprovider.DataProvider
+import com.alexyatsenka.testcontentprovider.data.DataProvider
 import com.alexyatsenka.testcontentprovider.di.modules.DatabaseModule
 import com.alexyatsenka.testcontentprovider.di.modules.RepositoryModule
 import com.alexyatsenka.testcontentprovider.di.modules.UseCaseModule

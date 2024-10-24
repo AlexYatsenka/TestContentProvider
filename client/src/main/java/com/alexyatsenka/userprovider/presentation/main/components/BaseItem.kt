@@ -11,10 +11,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.alexyatsenka.models.domain.Note
-import com.alexyatsenka.userprovider.presentation.main.MainViewModel
 
 @Composable
-fun BaseItem(item: Note, viewModel : MainViewModel) {
+fun BaseItem(
+    item: Note,
+    checked : Boolean,
+    showDelete : Boolean,
+    onClickToDelete : () -> Unit,
+) {
     Row(
         modifier = Modifier.padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -25,10 +29,10 @@ fun BaseItem(item: Note, viewModel : MainViewModel) {
             Text(text = item.title)
             Text(text = item.content)
         }
-        AnimatedVisibility(visible = viewModel.showDelete) {
+        AnimatedVisibility(visible = showDelete) {
             Checkbox(
-                checked = viewModel.selectedItems.contains(item),
-                onCheckedChange = { viewModel.clickToDelete(item) }
+                checked = checked,
+                onCheckedChange = { onClickToDelete() }
             )
         }
     }

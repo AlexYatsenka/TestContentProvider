@@ -25,7 +25,7 @@
         </activity>
 
         <provider
-            android:name=".DataProvider"
+            android:name=".data.DataProvider"
             android:authorities="com.alexyatsenka.testcontentprovider"
             android:exported="true"
             android:enabled="true"

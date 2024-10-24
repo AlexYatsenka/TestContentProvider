@@ -7,7 +7,7 @@ import com.alexyatsenka.userprovider.domain.repo.NoteRepository
 class AddNewNoteUseCaseImpl(
     private val noteRepository: NoteRepository
 ) : AddNewNoteUseCase {
-    override suspend fun invoke(note: Note) {
+    override fun invoke(note: Note) {
         noteRepository.addNewNote(note)
     }
 }

@@ -8,41 +8,51 @@ import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.alexyatsenka.models.domain.Note
-import com.alexyatsenka.userprovider.presentation.main.MainViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Item(
     item : Note,
-    viewModel: MainViewModel,
+    showEdit : Boolean,
+    checked : Boolean,
+    title : String,
+    content : String,
+    showDelete : Boolean,
+    onClickToDelete : () -> Unit,
+    onShowDelete : () -> Unit,
+    onClickCancel : () -> Unit,
+    onClickSave : () -> Unit,
+    onTitleUpdate : (String) -> Unit,
+    onContentUpdate : (String) -> Unit,
     modifier : Modifier = Modifier
 ) {
     Card(
         modifier = modifier
             .animateContentSize()
             .combinedClickable(
-                onClick = {
-                    if (viewModel.showDelete) {
-                        viewModel.clickToDelete(item)
-                    }
-                },
-                onLongClick = {
-                    viewModel.showDelete()
-                }
+                onClick = onClickToDelete,
+                onLongClick = onShowDelete
             )
     ) {
         Crossfade(
-            targetState = viewModel.editedItem == item,
+            targetState = showEdit,
             label = ""
         ) {
             if(it) {
                 EditItem(
-                    viewModel = viewModel
+                    title = title,
+                    content = content,
+                    onTitleUpdate = onTitleUpdate,
+                    onContentUpdate = onContentUpdate,
+                    onClickCancel = onClickCancel,
+                    onClickSave = onClickSave
                 )
             } else {
                 BaseItem(
                     item = item,
-                    viewModel = viewModel
+                    checked = checked,
+                    showDelete = showDelete,
+                    onClickToDelete = onClickToDelete
                 )
             }
         }

@@ -18,7 +18,7 @@ class NoteRepositoryImpl(
 
     private val itemsFlow = MutableStateFlow(emptyList<NoteDB>())
 
-    override suspend fun addNewNote(note: Note): Long {
+    override fun addNewNote(note: Note): Long {
         val result = contentResolver.insert(
             Uri.parse("content://com.alexyatsenka.testcontentprovider/notes"),
             ContentValues().apply {
@@ -37,7 +37,7 @@ class NoteRepositoryImpl(
         itemsFlow.asStateFlow()
     }
 
-    override suspend fun deleteById(id: Long): Int {
+    override fun deleteById(id: Long): Int {
         val result = contentResolver.delete(
             ContentUris.withAppendedId(
                 Uri.parse("content://com.alexyatsenka.testcontentprovider/notes"),
@@ -50,7 +50,7 @@ class NoteRepositoryImpl(
         return result
     }
 
-    override suspend fun updateNote(note: Note): Int {
+    override fun updateNote(note: Note): Int {
         val result = contentResolver.update(
             ContentUris.withAppendedId(
                 Uri.parse("content://com.alexyatsenka.testcontentprovider/notes"),

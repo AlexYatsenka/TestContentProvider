@@ -6,24 +6,35 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.alexyatsenka.userprovider.presentation.main.MainViewModel
 
 @Composable
 fun AddButton(
-    viewModel: MainViewModel,
+    title : String,
+    content : String,
+    expand : Boolean,
+    onTitleUpdate : (String) -> Unit,
+    onContentUpdate : (String) -> Unit,
+    onAddNote : () -> Unit,
+    onClick : () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier
             .animateContentSize()
-            .clickable { viewModel.clickToAddCard() }
+            .clickable(onClick = onClick)
     ) {
         Crossfade(
-            targetState = viewModel.expand,
+            targetState = expand,
             label = ""
         ) {
             if(it) {
-                ExpandAddButton(viewModel)
+                ExpandAddButton(
+                    title = title,
+                    content = content,
+                    onTitleUpdate = onTitleUpdate,
+                    onContentUpdate = onContentUpdate,
+                    onAddNote = onAddNote
+                )
             } else {
                 CollapsedAddButton()
             }

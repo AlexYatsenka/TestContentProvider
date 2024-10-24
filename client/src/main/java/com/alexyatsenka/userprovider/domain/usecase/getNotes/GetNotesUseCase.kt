@@ -1,4 +1,4 @@
-package com.alexyatsenka.testcontentprovider.domain.usecase.getNotes
+package com.alexyatsenka.userprovider.domain.usecase.getNotes
 
 import com.alexyatsenka.models.domain.Note
 import kotlinx.coroutines.flow.Flow

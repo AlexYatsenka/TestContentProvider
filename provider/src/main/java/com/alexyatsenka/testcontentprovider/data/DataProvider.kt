@@ -1,16 +1,15 @@
-package com.alexyatsenka.testcontentprovider
+package com.alexyatsenka.testcontentprovider.data
 
 import android.content.ContentProvider
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.UriMatcher
 import android.database.Cursor
-import android.database.MatrixCursor
 import android.net.Uri
+import com.alexyatsenka.models.data.NoteDB
 import com.alexyatsenka.models.domain.Note
 import com.alexyatsenka.testcontentprovider.di.Dagger
 import com.alexyatsenka.testcontentprovider.domain.repo.NoteRepository
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 class DataProvider : ContentProvider() {
@@ -32,19 +31,16 @@ class DataProvider : ContentProvider() {
     ): Cursor? {
         return when (uriMatcher.match(uri)) {
             NOTES -> {
-                val notes = runBlocking { repository.getNotesSync() }
-                MatrixCursor(arrayOf("id", "title", "content")).apply {
-                    notes.forEach { note ->
-                        addRow(arrayOf(note.id, note.title, note.content))
-                    }
+                repository.getNotesSync().apply {
+                    setNotificationUri(
+                        context!!.contentResolver,
+                        uri
+                    )
                 }
             }
             NOTE_ID -> {
-                val id = ContentUris.parseId(uri)
-                runBlocking { repository.getNotesSync(id) }?.let {
-                    MatrixCursor(arrayOf("id", "title", "content")).apply {
-                        addRow(arrayOf(it.id, it.title, it.content))
-                    }
+                repository.getNotesSync(ContentUris.parseId(uri)).apply {
+                    setNotificationUri(context!!.contentResolver, uri)
                 }
             }
             else -> null
@@ -64,7 +60,7 @@ class DataProvider : ContentProvider() {
             NOTES -> {
                 val title = values?.getAsString("title") ?: return null
                 val content = values.getAsString("content") ?: return null
-                val id = runBlocking { repository.addNewNote(Note(title = title, content = content)) }
+                val id = repository.addNewNote(Note(title = title, content = content))
                 ContentUris.withAppendedId(CONTENT_URI, id)
             }
             else -> null
@@ -75,7 +71,7 @@ class DataProvider : ContentProvider() {
         return when (uriMatcher.match(uri)) {
             NOTE_ID -> {
                 val id = ContentUris.parseId(uri)
-                runBlocking { repository.deleteById(id) }
+                repository.deleteById(id)
             }
             else -> 0
         }
@@ -90,12 +86,12 @@ class DataProvider : ContentProvider() {
         return when (uriMatcher.match(uri)) {
             NOTE_ID -> {
                 val id = ContentUris.parseId(uri)
-                val note = runBlocking { repository.getNotesSync(id) } ?: return 0
-                val updatedNote = note.copy(
-                    title = values?.getAsString("title") ?: note.title,
-                    content = values?.getAsString("content") ?: note.content
+                val updatedNote = NoteDB(
+                    id,
+                    values?.getAsString("title") ?: "",
+                    values?.getAsString("content") ?: ""
                 )
-                runBlocking { repository.updateNote(updatedNote) }
+                repository.updateNote(updatedNote)
             }
             else -> 0
         }

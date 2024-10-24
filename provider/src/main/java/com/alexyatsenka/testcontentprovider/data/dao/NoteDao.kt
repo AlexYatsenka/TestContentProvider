@@ -1,5 +1,6 @@
 package com.alexyatsenka.testcontentprovider.data.dao
 
+import android.database.Cursor
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
@@ -11,19 +12,19 @@ import kotlinx.coroutines.flow.Flow
 interface NoteDao {
 
     @Insert
-    suspend fun addNewNote(note : NoteDB) : Long
+    fun addNewNote(note : NoteDB) : Long
 
     @Update
-    suspend fun update(note: NoteDB) : Int
+    fun update(note: NoteDB) : Int
 
     @Query("DELETE FROM NoteDB WHERE id = :id")
-    suspend fun deleteById(id: Long) : Int
+    fun deleteById(id: Long) : Int
 
     @Query("SELECT * FROM NoteDB")
-    suspend fun getAllNotes() : List<NoteDB>
+    fun getAllNotes() : Cursor
 
     @Query("SELECT * FROM NoteDB WHERE id = :id")
-    suspend fun getNoteById(id: Long) : NoteDB?
+    fun getNoteById(id: Long) : Cursor
 
     @Query("SELECT * FROM NoteDB")
     fun getAllNotesAsync() : Flow<List<NoteDB>>

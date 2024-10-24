@@ -1,7 +1,7 @@
-package com.alexyatsenka.testcontentprovider.domain.usecase.deleteNotes
+package com.alexyatsenka.userprovider.domain.usecase.deleteNotes
 
 import com.alexyatsenka.models.domain.Note
 
 interface DeleteNotesUseCase {
-    suspend operator fun invoke(notes : List<Note>): Result<List<Int>>
+    operator fun invoke(notes : List<Note>): Result<Unit>
 }

@@ -12,10 +12,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.alexyatsenka.userprovider.R
-import com.alexyatsenka.userprovider.presentation.main.MainViewModel
 
 @Composable
-fun ExpandAddButton(viewModel: MainViewModel) {
+fun ExpandAddButton(
+    title : String,
+    content : String,
+    onTitleUpdate : (String) -> Unit,
+    onContentUpdate : (String) -> Unit,
+    onAddNote : () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -23,19 +28,19 @@ fun ExpandAddButton(viewModel: MainViewModel) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TextField(
-            value = viewModel.currentTitle,
-            onValueChange = { viewModel.currentTitle = it },
+            value = title,
+            onValueChange = onTitleUpdate,
             label = { Text(text = stringResource(R.string.main_note_title)) },
             modifier = Modifier.fillMaxWidth()
         )
         TextField(
-            value = viewModel.currentContent,
-            onValueChange = { viewModel.currentContent = it },
+            value = content,
+            onValueChange = onContentUpdate,
             label = { Text(text = stringResource(R.string.main_note_content)) },
             modifier = Modifier.fillMaxWidth()
         )
         Button(
-            onClick = { viewModel.addNewNote() }
+            onClick = onAddNote
         ) { Text(text = stringResource(R.string.main_add_note)) }
     }
 }

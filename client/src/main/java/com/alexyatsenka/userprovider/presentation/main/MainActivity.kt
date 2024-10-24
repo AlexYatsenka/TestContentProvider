@@ -21,8 +21,12 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -33,6 +37,7 @@ import com.alexyatsenka.userprovider.di.Dagger
 import com.alexyatsenka.userprovider.presentation.main.components.AddButton
 import com.alexyatsenka.userprovider.presentation.main.components.Item
 import com.alexyatsenka.userprovider.presentation.theme.TestContentProviderTheme
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
@@ -46,7 +51,24 @@ class MainActivity : ComponentActivity() {
     @Inject
     fun inject(viewModel : MainViewModel) {
         setContent {
+            var currentTitle by remember { mutableStateOf("") }
+            var currentContent by remember { mutableStateOf("") }
+
             val items by viewModel.notes.collectAsState(emptyList())
+            val showDelete by viewModel.showDelete.collectAsState()
+            val selectedItems by viewModel.selectedItems.collectAsState()
+            val expand by viewModel.expand.collectAsState()
+            val editedItem by viewModel.editedItem.collectAsState()
+
+            LaunchedEffect(Unit) {
+                launch {
+                    viewModel.currentTitle.collect { currentTitle = it }
+                }
+                launch {
+                    viewModel.currentContent.collect { currentContent = it }
+                }
+            }
+
             TestContentProviderTheme {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -59,7 +81,7 @@ class MainActivity : ComponentActivity() {
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             AnimatedVisibility(
-                                viewModel.showDelete && viewModel.selectedItems.size == 1
+                                showDelete && selectedItems.size == 1
                             ) {
                                 FloatingActionButton(onClick = viewModel::clickToEdit) {
                                     Icon(
@@ -69,7 +91,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                             AnimatedVisibility(
-                                viewModel.showDelete && viewModel.selectedItems.isNotEmpty()
+                                showDelete && selectedItems.isNotEmpty()
                             ) {
                                 FloatingActionButton(onClick = { viewModel.deleteNotes() }) {
                                     Icon(
@@ -96,13 +118,41 @@ class MainActivity : ComponentActivity() {
                                 items(items) {
                                     Item(
                                         item = it,
-                                        viewModel = viewModel,
+                                        showEdit = editedItem == it,
+                                        showDelete = showDelete,
+                                        checked = selectedItems.contains(it),
+                                        title = currentTitle,
+                                        content = currentContent,
+                                        onTitleUpdate = {
+                                            currentTitle = it
+                                            viewModel.setTitle(it)
+                                        },
+                                        onContentUpdate = {
+                                            currentContent = it
+                                            viewModel.setContent(it)
+                                        },
+                                        onClickCancel = viewModel::cancelEdit,
+                                        onClickSave = viewModel::saveEditItem,
+                                        onClickToDelete = { viewModel.clickToDelete(it) },
+                                        onShowDelete = viewModel::showDelete,
                                         modifier = Modifier.animateItemPlacement()
                                     )
                                 }
                                 item {
                                     AddButton(
-                                        viewModel = viewModel,
+                                        title = currentTitle,
+                                        content = currentContent,
+                                        onTitleUpdate = {
+                                            currentTitle = it
+                                            viewModel.setTitle(it)
+                                        },
+                                        onContentUpdate = {
+                                            currentContent = it
+                                            viewModel.setContent(it)
+                                        },
+                                        onAddNote = viewModel::addNewNote,
+                                        onClick = viewModel::clickToAddCard,
+                                        expand = expand,
                                         modifier = Modifier.animateItemPlacement()
                                     )
                                 }

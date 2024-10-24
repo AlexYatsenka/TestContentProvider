@@ -1,5 +1,6 @@
 package com.alexyatsenka.testcontentprovider.data.repo
 
+import android.database.Cursor
 import com.alexyatsenka.models.data.NoteDB
 import com.alexyatsenka.models.domain.Note
 import com.alexyatsenka.models.domain.toNoteDB
@@ -10,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 class NoteRepositoryImpl(
     private val noteDao : NoteDao
 ) : NoteRepository {
-    override suspend fun addNewNote(note: Note) : Long {
+    override fun addNewNote(note: Note) : Long {
         return noteDao.addNewNote(note.toNoteDB())
     }
 
@@ -18,19 +19,19 @@ class NoteRepositoryImpl(
         return noteDao.getAllNotesAsync()
     }
 
-    override suspend fun deleteById(id: Long): Int {
+    override fun deleteById(id: Long): Int {
         return noteDao.deleteById(id)
     }
 
-    override suspend fun updateNote(note: NoteDB): Int {
+    override fun updateNote(note: NoteDB): Int {
         return noteDao.update(note)
     }
 
-    override suspend fun getNotesSync(): List<NoteDB> {
+    override fun getNotesSync(): Cursor {
         return noteDao.getAllNotes()
     }
 
-    override suspend fun getNotesSync(id: Long): NoteDB? {
+    override fun getNotesSync(id: Long): Cursor {
         return noteDao.getNoteById(id)
     }
 }

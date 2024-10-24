@@ -13,31 +13,37 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.alexyatsenka.userprovider.R
-import com.alexyatsenka.userprovider.presentation.main.MainViewModel
 
 @Composable
-fun EditItem(viewModel: MainViewModel) {
+fun EditItem(
+    title : String,
+    content : String,
+    onTitleUpdate : (String) -> Unit,
+    onContentUpdate : (String) -> Unit,
+    onClickSave : () -> Unit,
+    onClickCancel : () -> Unit
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(8.dp)
     ) {
         TextField(
-            value = viewModel.currentTitle,
-            onValueChange = { viewModel.currentTitle = it },
+            value = title,
+            onValueChange = onTitleUpdate,
             label = { Text(text = stringResource(R.string.main_note_title)) },
             modifier = Modifier.fillMaxWidth()
         )
         TextField(
-            value = viewModel.currentContent,
-            onValueChange = { viewModel.currentContent = it },
+            value = content,
+            onValueChange = onContentUpdate,
             label = { Text(text = stringResource(R.string.main_note_content)) },
             modifier = Modifier.fillMaxWidth()
         )
         Row {
-            Button(onClick = viewModel::saveEditItem) {
+            Button(onClick = onClickSave) {
                 Text(text = stringResource(R.string.main_note_save))
             }
-            Button(onClick = viewModel::cancelEdit) {
+            Button(onClick = onClickCancel) {
                 Text(text = stringResource(R.string.main_note_save_cancel))
             }
         }
