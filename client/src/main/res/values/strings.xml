@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">NoteClient</string>
+    <string name="main_title">Client</string>
+    <string name="main_add_note">Add new note</string>
+    <string name="main_note_title">Title</string>
+    <string name="main_note_content">Content</string>
+    <string name="main_note_save">Save</string>
+    <string name="main_note_save_cancel">Cancel</string>
+</resources>
